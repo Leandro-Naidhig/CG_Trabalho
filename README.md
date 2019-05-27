@@ -1,6 +1,6 @@
 ## Computação Gráfica
 
-Trabalho Prático desenvolvido para a disciplina de Computação Gráfica.
+Este trabalho prático foi desenvolvido para a disciplina de Computação Gráfica, ministrada pelo professor Dr. Mário Liziér.
 
 #### Integrantes: 
 
