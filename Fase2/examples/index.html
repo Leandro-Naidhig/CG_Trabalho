@@ -57,7 +57,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.set( 100, 0, 1200 );
+				camera.position.set( -50, 0, 1200 );
 				
                 		// scene
 				scene = new THREE.Scene();
@@ -117,10 +117,19 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 
 			function key(e) {
 				if(e.which == 49){  // which = change position camera  (press 1)
-					camera.position.set( 100, 0, 1200 );
+					camera.position.set( -50, 0, 1200 );
 				} else if (e.which == 50) { // press 2
 					camera.position.set(1000, 500, 1000);
 				}
+
+				var speed = 1;
+
+				if(e.which == 68){object.position.x += speed;}  //RIGHT D
+				else if(e.which == 65){object.position.x -= speed;}  //LEFT  A
+				else if(e.which == 87){object.position.y += speed;}  //UP   W
+				else if(e.which == 83){object.position.y -= speed;}  //DOWN S
+				else if(e.which == 32){object.position.z += speed;}  //FRONT SPACE
+				else if(e.which == 8){object.position.z -= speed;}  //BACK BACKSPACE
 			}
 
 			function onWindowResize() {
