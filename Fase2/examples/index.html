@@ -2,10 +2,8 @@
 INTEGRANTES:
 Leandro Naidhig, RA: 726555
 Michele Argolo Carvalho, RA: 726573
-
 Computação Gráfica - Fase 1
 Professor: Mario Liziér
-
 Código utilizado é da documentação do ThreeJS, encontrado no github: https://github.com/mrdoob/three.js
 -->
 <!DOCTYPE html>
@@ -42,153 +40,9 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 
 		<script src="../build/three.js"></script>
 		<script src="js/loaders/OBJLoader.js"></script>
-    <script src="js/loaders/OrbitControls.js"></script>
+       		<script src="js/loaders/OrbitControls.js"></script>
+
 		<script>
-      function vertexshaderDino() {
-
-      return `
-        //Valores para translacao
-        float translationX = 0.0;
-        float translationY = -70.0;
-        float translationZ = 0.0;
-
-        //Valores para escala
-        float scaleX = 0.90;
-        float scaleY = 0.90;
-        float scaleZ = 0.90;
-
-        //Valores para rotacao
-        float rotationX = 0.0;
-        float rotationY = 0.0;
-        float rotationZ = 0.0;
-
-        //Matriz de Transformação
-        varying mat4 mTransformation;
-
-        void main() {
-
-          // Translação
-          mat4 tPos = mat4(vec4(1.0, 0.0, 0.0, 0.0),
-                           vec4(0.0, 1.0, 0.0, 0.0),
-                           vec4(0.0, 0.0, 1.0, 0.0),
-                           vec4(translationX, translationY, translationZ, 1.0));
-          //Rotação
-          mat4 rXPos = mat4(vec4(1.0, 0.0, 0.0, 0.0),
-                            vec4(0.0, cos(rotationX), -sin(rotationX), 0.0),
-                            vec4(0.0, sin(rotationX), cos(rotationX) ,0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mat4 rYPos = mat4(vec4(cos(rotationY), 0.0, sin(rotationY), 0.0),
-                            vec4(0.0, 1.0, 0.0, 0.0),
-                            vec4(-sin(rotationY), 0.0, cos(rotationY), 0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mat4 rZPos = mat4(vec4(cos(rotationZ), -sin(rotationZ), 0.0, 0.0),
-                            vec4(sin(rotationZ), cos(rotationZ), 0.0, 0.0),
-                            vec4(0.0, 0.0, 1.0, 0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mat4 sPos = mat4(vec4(scaleX, 0.0, 0.0, 0.0),
-                            vec4(0.0, scaleY, 0.0, 0.0),
-                            vec4(0.0, 0.0, scaleZ, 0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mTransformation =  tPos * rXPos * rZPos * rYPos * sPos;
-
-          //Aplicação da matriz e posicionamento do objeto na cena
-          gl_Position = projectionMatrix * modelViewMatrix * mTransformation * vec4( position, 1.0 );
-        }
-        `
-      }
-
-      function fragmentshaderDino() {
-        return `
-          uniform float time;
-          uniform vec2 resolution;
-          void main() {
-            gl_FragColor = vec4(0.5, 0.09, 2.0, 1.0);
-          }
-        `
-      }
-
-      function vertexshaderAlien() {
-
-      return `
-        //Valores para translacao
-        float translationX = 200.0;
-        float translationY = -330.0;
-        float translationZ = 0.0;
-
-        //Valores para escala
-        float scaleX = 20.0;
-        float scaleY = 20.0;
-        float scaleZ = 20.0;
-
-        //Valores para rotacao
-        float rotationX = 0.0;
-        float rotationY = 0.0;
-        float rotationZ = 0.0;
-
-        //Matriz de Transformação
-        varying mat4 mTransformation;
-
-        void main() {
-
-          // Translação
-          mat4 tPos = mat4(vec4(1.0, 0.0, 0.0, 0.0),
-                           vec4(0.0, 1.0, 0.0, 0.0),
-                           vec4(0.0, 0.0, 1.0, 0.0),
-                           vec4(translationX, translationY, translationZ, 1.0));
-          //Rotação
-          mat4 rXPos = mat4(vec4(1.0, 0.0, 0.0, 0.0),
-                            vec4(0.0, cos(rotationX), -sin(rotationX), 0.0),
-                            vec4(0.0, sin(rotationX), cos(rotationX) ,0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mat4 rYPos = mat4(vec4(cos(rotationY), 0.0, sin(rotationY), 0.0),
-                            vec4(0.0, 1.0, 0.0, 0.0),
-                            vec4(-sin(rotationY), 0.0, cos(rotationY), 0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mat4 rZPos = mat4(vec4(cos(rotationZ), -sin(rotationZ), 0.0, 0.0),
-                            vec4(sin(rotationZ), cos(rotationZ), 0.0, 0.0),
-                            vec4(0.0, 0.0, 1.0, 0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mat4 sPos = mat4(vec4(scaleX, 0.0, 0.0, 0.0),
-                            vec4(0.0, scaleY, 0.0, 0.0),
-                            vec4(0.0, 0.0, scaleZ, 0.0),
-                            vec4(0.0, 0.0, 0.0, 1.0));
-
-          mTransformation =  tPos * rXPos * rZPos * rYPos * sPos;
-
-          //Aplicação da matriz e posicionamento do objeto na cena
-          gl_Position = projectionMatrix * modelViewMatrix * mTransformation * vec4( position, 1.0 );
-        }
-        `
-      }
-
-      function fragmentshaderAlien() {
-        return `
-          uniform float time;
-          uniform vec2 resolution;
-          void main() {
-            gl_FragColor = vec4(1.5, 0.09, 2.0, 1.0);
-          }
-        `
-      }
-
-      /* Quando é aplicado o vertexshader para realizar a transformação do objeto,
-      é necessário também também realizar a coloração do objeto utlizando o fragmentshader
-      */
-      var vertex_fragmentDino = new THREE.ShaderMaterial( {
-              vertexShader: vertexshaderDino(),
-              fragmentShader: fragmentshaderDino()
-      });
-      var vertex_fragmentAlien = new THREE.ShaderMaterial( {
-              vertexShader: vertexshaderAlien(),
-              fragmentShader: fragmentshaderAlien()
-      });
 			var container;
 			var camera, scene, renderer, controls;
 			var mouseX = 0, mouseY = 0;
@@ -202,21 +56,28 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				document.body.appendChild( container );
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 				camera.position.set( -50, 0, 1200 );
-
-                		// scene
+				
+        // scene
 				scene = new THREE.Scene();
 				var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
 				scene.add( ambientLight );
 				var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
 				camera.add( pointLight );
-				scene.add( camera );
+        scene.add( camera );
+        
+        var matrixScene = new THREE.Matrix4().makeTranslation(-50, 0, 1200);
+        scene.applyMatrix(matrixScene);
+
 				// manager
 				function loadModel() {
 					object.traverse( function ( child ) {
 						if ( child.isMesh ) child.material.map = texture;
 					} );
-					object.position.y = - 305;
-					object.position.x = -200;
+					var matrixDino = new THREE.Matrix4().makeTranslation(-200, -305, 0);
+          matrixDino.multiply(new THREE.Matrix4().makeScale(1, 1, 1));
+          matrixDino.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
+          object.applyMatrix(matrixDino);
+          
                     			//object.position.z = - 700;
 					scene.add( object );
 				}
@@ -237,24 +98,17 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				function onError() {}
 				var loader = new THREE.OBJLoader( manager );
 				loader.load( 'models/obj/male02/Irex_obj.obj', function ( obj ) {
-					obj.traverse( function ( child ) {
-            if ( child instanceof THREE.Mesh ) {
-              child.material = vertex_fragmentDino;
-            }
-          });
-          object = obj;
+					object = obj;
 				}, onProgress, onError );
-
 				// second object
 				loader.load( 'models/obj/alien/alien.obj', function ( obj ) {
-					obj.traverse( function ( child ) {
-            if ( child instanceof THREE.Mesh ) {
-              child.material = vertex_fragmentAlien;
-            }
-          });
+          var matrixAlien = new THREE.Matrix4().makeTranslation(300, -305, 0);   
+          matrixAlien.multiply(new THREE.Matrix4().makeScale(20, 20, 20));   
+          matrixAlien.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2)); 
+          obj.applyMatrix(matrixAlien);
+					//obj.scale.x = obj.scale.y = obj.scale.z = 20;
 					scene.add(obj);
 				}, onProgress, onError );
-
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
@@ -263,18 +117,15 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				controls = new THREE.OrbitControls(camera);
 				//
 				window.addEventListener( 'keydown', key, false );
-
+                
 			}
-
 			function key(e) {
 				if(e.which == 49){  // which = change position camera  (press 1)
 					camera.position.set( -50, 0, 1200 );
 				} else if (e.which == 50) { // press 2
 					camera.position.set(1000, 500, 1000);
 				}
-
 				var speed = 1;
-
 				if(e.which == 68){object.position.x += speed;}  //RIGHT D
 				else if(e.which == 65){object.position.x -= speed;}  //LEFT  A
 				else if(e.which == 87){object.position.y += speed;}  //UP   W
@@ -282,7 +133,6 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				else if(e.which == 32){object.position.z += speed;}  //FRONT SPACE
 				else if(e.which == 8){object.position.z -= speed;}  //BACK BACKSPACE
 			}
-
 			function onWindowResize() {
 				windowHalfX = window.innerWidth / 2;
 				windowHalfY = window.innerHeight / 2;
@@ -290,22 +140,19 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
-
 			function onDocumentMouseMove( event ) {
 				mouseX = ( event.clientX - windowHalfX ) / 2;
 				mouseY = ( event.clientY - windowHalfY ) / 2;
 			}
-
+			
 			function animate() {
 				requestAnimationFrame( animate );
 				render();
 			}
-
 			function render() {
 				camera.lookAt( scene.position );
 				renderer.render( scene, camera );
 			}
-
 		</script>
 
 	</body>
