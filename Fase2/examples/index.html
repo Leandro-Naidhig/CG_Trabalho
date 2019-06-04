@@ -55,7 +55,8 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-				camera.position.set( -50, 0, 1200 );
+				//camera.position.set( -50, 0, 1200 );
+				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 0, 1200));
 				
         // scene
 				scene = new THREE.Scene();
@@ -78,7 +79,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
           matrixDino.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
           object.applyMatrix(matrixDino);
           
-                    			//object.position.z = - 700;
+          //object.position.z = - 700;
 					scene.add( object );
 				}
 				var manager = new THREE.LoadingManager( loadModel );
@@ -124,7 +125,10 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 					camera.position.set( -50, 0, 1200 );
 				} else if (e.which == 50) { // press 2
 					camera.position.set(1000, 500, 1000);
+				} else if (e.which == 51) { // press 3
+					camera.position.set(-1000, 500, 1000);
 				}
+
 				var speed = 1;
 				if(e.which == 68){object.position.x += speed;}  //RIGHT D
 				else if(e.which == 65){object.position.x -= speed;}  //LEFT  A
