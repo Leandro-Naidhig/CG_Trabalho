@@ -7,7 +7,7 @@ Professor: Mario Liziér
 Código utilizado é da documentação do ThreeJS, encontrado no github: https://github.com/mrdoob/three.js
 -->
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="en">
 	<head>
 		<title>three.js webgl - loaders - OBJ loader</title>
 		<meta charset="utf-8">
@@ -35,12 +35,12 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 
 	<body>
 		<div id="info">
-		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - Dinossauro e Alien
+		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - OBJLoader test
 		</div>
 
 		<script src="../build/three.js"></script>
 		<script src="js/loaders/OBJLoader.js"></script>
-    <script src="js/loaders/OrbitControls.js"></script>
+       		<script src="js/loaders/OrbitControls.js"></script>
 
 		<script>
 			var container;
@@ -52,101 +52,73 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 			init();
 			animate();
 			function init() {
-
 				container = document.createElement( 'div' );
 				document.body.appendChild( container );
-
-        //Criação da Camera
-        camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
-
-        //Aplica a translação da camera, passando como parâmetro uma nova matriz de translação de acordo com as coordenadas x,y e z
-        camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 0, 1200));
-
-        //Criação da Cena e aplicação de iluminação no cenário
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				//camera.position.set( -50, 0, 1200 );
+				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 0, 1200));
+				
+        // scene
 				scene = new THREE.Scene();
 				var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
-				scene.add(ambientLight);
+				scene.add( ambientLight );
 				var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
-				camera.add(pointLight);
-        scene.add(camera);
-
-        //Criação da matriz de transformação da Cena de acordo com as coordenadas
+				camera.add( pointLight );
+        scene.add( camera );
+        
         var matrixScene = new THREE.Matrix4().makeTranslation(-50, 0, 1200);
-
-        //Aplicação da nova matriz na cena
         scene.applyMatrix(matrixScene);
-
+				// manager
 				function loadModel() {
-
-          //Aplicação da textura no objeto dinossauro
-					object.traverse( function (child) {
-						if (child.isMesh) child.material.map = texture;
-					});
-
-          //Cria a matriz de transformação para o objeto, sendo no caso para o
-          //dinossauro, aplicando transalação, escala e rotação no eixoY
+					object.traverse( function ( child ) {
+						if ( child.isMesh ) child.material.map = texture;
+					} );
 					var matrixDino = new THREE.Matrix4().makeTranslation(-200, -305, 0);
           matrixDino.multiply(new THREE.Matrix4().makeScale(1, 1, 1));
           matrixDino.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
-
-          //Aplicação da matriz de transformação no objeto dinossauro
           object.applyMatrix(matrixDino);
-					scene.add(object);
+          
+          //object.position.z = - 700;
+					scene.add( object );
 				}
-
-				var manager = new THREE.LoadingManager(loadModel);
+				var manager = new THREE.LoadingManager( loadModel );
 				manager.onProgress = function ( item, loaded, total ) {
 					console.log( item, loaded, total );
 				};
-
-				//Aplicação da textura no Dinossauro
-				var textureLoader = new THREE.TextureLoader(manager);
+				// texture
+				var textureLoader = new THREE.TextureLoader( manager );
 				var texture = textureLoader.load('textures/UV_Grid_Sm.jpg');
-
-        //model
-				function onProgress(xhr) {
+				// model
+				function onProgress( xhr ) {
 					if ( xhr.lengthComputable ) {
 						var percentComplete = xhr.loaded / xhr.total * 100;
 						console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
 					}
 				}
-
-        //Colocação do primeiro obj na cena
 				function onError() {}
-				var loader = new THREE.OBJLoader(manager);
+				var loader = new THREE.OBJLoader( manager );
 				loader.load( 'models/obj/male02/Irex_obj.obj', function ( obj ) {
-
-          //Referenciando o objeto como sendo o dinossauro
 					object = obj;
 				}, onProgress, onError );
-
-				//Colocação do segundo objeto na Cena
+				// second object
 				loader.load( 'models/obj/alien/alien.obj', function ( obj ) {
-
-          //Aplicação da matriz de transformação no Alien, realizando todas as
-          //operações, ou seja, translação, escala e rotação no eixo Y.
-          var matrixAlien = new THREE.Matrix4().makeTranslation(300, -305, 0);
-          matrixAlien.multiply(new THREE.Matrix4().makeScale(20, 20, 20));
-          matrixAlien.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
-
-          //Aplicação da matriz de transformação no objeto
+          var matrixAlien = new THREE.Matrix4().makeTranslation(300, -305, 0);   
+          matrixAlien.multiply(new THREE.Matrix4().makeScale(20, 20, 20));   
+          matrixAlien.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2)); 
           obj.applyMatrix(matrixAlien);
-
-          //Colocação do segundo objeto na cena
+					//obj.scale.x = obj.scale.y = obj.scale.z = 20;
 					scene.add(obj);
 				}, onProgress, onError );
-
-        //Vai criar um renderizador sendo no caso o WEBGL
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
 				container.appendChild( renderer.domElement );
-				document.addEventListener('mousemove', onDocumentMouseMove, false);
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 				controls = new THREE.OrbitControls(camera);
+				//
 				window.addEventListener( 'keydown', key, false );
-
+                
 			}
-
 			function key(e) {
 				if(e.which == 49){  // which = change position camera  (press 1)
 					camera.position.set( -50, 0, 1200 );
@@ -155,7 +127,6 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				} else if (e.which == 51) { // press 3
 					camera.position.set(-1000, 500, 1000);
 				}
-
 				var speed = 1;
 				if(e.which == 68){object.position.x += speed;}  //RIGHT D
 				else if(e.which == 65){object.position.x -= speed;}  //LEFT  A
@@ -164,7 +135,6 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				else if(e.which == 32){object.position.z += speed;}  //FRONT SPACE
 				else if(e.which == 8){object.position.z -= speed;}  //BACK BACKSPACE
 			}
-
 			function onWindowResize() {
 				windowHalfX = window.innerWidth / 2;
 				windowHalfY = window.innerHeight / 2;
@@ -172,23 +142,20 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				camera.updateProjectionMatrix();
 				renderer.setSize( window.innerWidth, window.innerHeight );
 			}
-
 			function onDocumentMouseMove( event ) {
-				mouseX = (event.clientX - windowHalfX) / 2;
-				mouseY = (event.clientY - windowHalfY) / 2;
+				mouseX = ( event.clientX - windowHalfX ) / 2;
+				mouseY = ( event.clientY - windowHalfY ) / 2;
 			}
-
+			
 			function animate() {
-				requestAnimationFrame(animate);
+				requestAnimationFrame( animate );
 				render();
 			}
-
-      //Referenciando para o objeto camera a posicao da cena e renderizando em
-      //WebGL a camera e a cena.
 			function render() {
-				camera.lookAt(scene.position);
-				renderer.render(scene, camera);
+				camera.lookAt( scene.position );
+				renderer.render( scene, camera );
 			}
 		</script>
+
 	</body>
 </html>
