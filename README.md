@@ -19,3 +19,7 @@ Este trabalho prático foi desenvolvido para a disciplina de Computação Gráfi
 - Matriz de Transformação do modelo (uma diferente para cada modelo);
 - Matriz de Visualização (uma para toda a a cena);
 - Duas posições distintas de câmeras.
+
+#### Atividade Prática 3:
+- Implementação de uma curva na cena: movimento ou objeto;
+- Shader próprio incluindo o modelo de iluminação e tonalização phong.
