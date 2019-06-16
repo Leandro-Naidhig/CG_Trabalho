@@ -20,6 +20,13 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				margin: 0px;
 				overflow: hidden;
 			}
+			b {
+				color: lightgreen;
+			}
+			c {
+				color: lightgreen;
+				text-align: right;
+			}
 			#info {
 				color: #fff;
 				position: absolute;
@@ -35,7 +42,8 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 
 	<body>
 		<div id="info">
-		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - Animals Carrousel
+		<a href="http://threejs.org" target="_blank" rel="noopener"><h4>three.js</a> - Animals Carrousel</h4>
+		<b>[1]</b> Camera 1 <b>[2]</b> Camera 2 <b>[3]</b> Camera 3 <br><c>[W]</c> Up <c>[A]</c> Left <c>[D]</c> Right <c>[S]</c> Down <c>[SPACE]</c> Foward <c>[BACKSPACE]</c> Back
 		</div>
 		<script id="vtx-shader" type="x-shader/x-vertex">
 		    varying vec3 vScene;
