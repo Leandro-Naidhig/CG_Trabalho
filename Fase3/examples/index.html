@@ -35,8 +35,24 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 
 	<body>
 		<div id="info">
-		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - OBJLoader test
+		<a href="http://threejs.org" target="_blank" rel="noopener">three.js</a> - Animals Carrousel
 		</div>
+		<script id="vtx-shader" type="x-shader/x-vertex">
+		    varying vec3 vScene;
+		    void main() {
+		        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // position scene - 1.0 default value
+			vScene = normal;  
+		    }
+		</script>
+
+		<script id="fment-shader" type="x-shader/x-fragment">
+		    varying vec3 vScene; 
+		    void main() {
+		        vec3 light = vec3(0, 0.25, 0.5);   
+		        light = normalize(light);
+		        gl_FragColor = vec4(vScene.rgb, 1.0);       
+		    }
+		</script>
 
 		<script src="../build/three.js"></script>
 		<script src="js/loaders/OBJLoader.js"></script>
@@ -58,27 +74,36 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				//camera.position.set( -50, 0, 1200 );
 				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 0, 1200));
 				
-        // scene
+				//scene
 				scene = new THREE.Scene();
 				var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
 				scene.add( ambientLight );
 				var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
 				camera.add( pointLight );
-        scene.add( camera );
-        
-        var matrixScene = new THREE.Matrix4().makeTranslation(-50, 0, 1200);
-        scene.applyMatrix(matrixScene);
+				scene.add( camera );
+
+				//vertexshader & fragmentshader
+				var vertexShader = document.getElementById("vtx-shader");
+				var fragmentShader = document.getElementById("fment-shader");
+
+				var material = new THREE.ShaderMaterial({
+					vertexShader: vertexShader.textContent,
+					fragmentShader: fragmentShader.textContent
+				});
+		
+				var matrixScene = new THREE.Matrix4().makeTranslation(-50, 0, 1200);
+				scene.applyMatrix(matrixScene);
 				// manager
 				function loadModel() {
-					object.traverse( function ( child ) {
-						if ( child.isMesh ) child.material.map = texture;
+					object.traverse( function ( node ) {
+						if ( node.isMesh ) node.material = material;
 					} );
 					var matrixDino = new THREE.Matrix4().makeTranslation(-200, -305, 0);
-          matrixDino.multiply(new THREE.Matrix4().makeScale(1, 1, 1));
-          matrixDino.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
-          object.applyMatrix(matrixDino);
-          
-          //object.position.z = - 700;
+					  matrixDino.multiply(new THREE.Matrix4().makeScale(1, 1, 1));
+					  matrixDino.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
+					  object.applyMatrix(matrixDino);
+					  
+					  //object.position.z = - 700;
 					scene.add( object );
 				}
 				var manager = new THREE.LoadingManager( loadModel );
@@ -102,10 +127,13 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				}, onProgress, onError );
 				// second object
 				loader.load( 'models/obj/alien/alien.obj', function ( obj ) {
-          var matrixAlien = new THREE.Matrix4().makeTranslation(300, -305, 0);   
-          matrixAlien.multiply(new THREE.Matrix4().makeScale(20, 20, 20));   
-          matrixAlien.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2)); 
-          obj.applyMatrix(matrixAlien);
+					  obj.traverse(function (node) {
+					    if ( node.isMesh ) node.material = material;
+					});
+				  var matrixAlien = new THREE.Matrix4().makeTranslation(300, -305, 0);   
+				  matrixAlien.multiply(new THREE.Matrix4().makeScale(20, 20, 20));   
+				  matrixAlien.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2)); 
+				  obj.applyMatrix(matrixAlien);
 					//obj.scale.x = obj.scale.y = obj.scale.z = 20;
 					scene.add(obj);
 				}, onProgress, onError );
