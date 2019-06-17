@@ -46,20 +46,24 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 		<b>[1]</b> Camera 1 <b>[2]</b> Camera 2 (Rotating) <b>[3]</b> Camera 3 <br><c>[W]</c> Up <c>[A]</c> Left <c>[D]</c> Right <c>[S]</c> Down <c>[SPACE]</c> Foward <c>[BACKSPACE]</c> Back
 		</div>
 		<script id="vtx-shader" type="x-shader/x-vertex">
-		    varying vec3 vScene;
-		    void main() {
-		        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); // position scene - 1.0 default value
-			vScene = normal;  
-		    }
+		uniform mat4 trans;
+	        varying vec3 vScene;
+
+		void main(){
+			vec4 modelViewPosition = viewMatrix * trans * vec4(position, 1.0);
+			gl_Position = projectionMatrix * modelViewPosition; 
+			vScene = normal;
+		}
+
 		</script>
 
 		<script id="fment-shader" type="x-shader/x-fragment">
-		    varying vec3 vScene; 
-		    void main() {
-		        vec3 light = vec3(0, 0.25, 0.5);   
+		varying vec3 vScene; 
+		void main(){
+			vec3 light = vec3(0, 2, 100);   
 		        light = normalize(light);
-		        gl_FragColor = vec4(vScene.rgb, 1.0);       
-		    }
+			gl_FragColor = vec4(vScene.rgb, 1.0);
+		}
 		</script>
 
 		<script src="../build/three.js"></script>
@@ -83,7 +87,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 				//camera.position.set( -50, 0, 1200 );
 				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 0, 1200));
-				
+
 				//scene
 				scene = new THREE.Scene();
 				var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
@@ -92,21 +96,35 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				camera.add( pointLight );
 				scene.add( camera );
 
-				//vertexshader & fragmentshader
-				var vertexShader = document.getElementById("vtx-shader");
-				var fragmentShader = document.getElementById("fment-shader");
-
+				// our shader
 				var material = new THREE.ShaderMaterial({
-					vertexShader: vertexShader.textContent,
-					fragmentShader: fragmentShader.textContent
+					uniforms: {
+						//time: { value: 1.0 },
+						trans: {
+							type: "mat4",
+							value: new THREE.Matrix4().set(
+								20, 0, 0, 300,
+								0, 20, 0, -305,
+								0, 0, 20, 1200,
+								0, 0, 0, 1
+							)
+						}
+					},
+					vertexShader: document.getElementById("vtx-shader").textContent,
+					fragmentShader: document.getElementById("fment-shader").textContent
 				});
 		
 				var matrixScene = new THREE.Matrix4().makeTranslation(-50, 0, 1200);
 				scene.applyMatrix(matrixScene);
 				// manager
+
+				// phongs
+				var phongMaterialDino = new THREE.MeshPhongMaterial({color: 0x4b0082, specular: 0xffd700, shininess: 60});
+				//var phongMaterialAlien = new THREE.MeshPhongMaterial({color: 0x009933, specular: 0xffffff, shininess: 20});
+	
 				function loadModel() {
-					object.traverse( function ( node ) {
-						if ( node.isMesh ) node.material = material;
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) child.material = phongMaterialDino;
 					} );
 					var matrixDino = new THREE.Matrix4().makeTranslation(-200, -305, 0);
 					  matrixDino.multiply(new THREE.Matrix4().makeScale(1, 1, 1));
@@ -137,14 +155,11 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				}, onProgress, onError );
 				// second object
 				loader.load( 'models/obj/alien/alien.obj', function ( obj ) {
-					  obj.traverse(function (node) {
-					    if ( node.isMesh ) node.material = material;
-					});
-				  var matrixAlien = new THREE.Matrix4().makeTranslation(300, -305, 0);   
-				  matrixAlien.multiply(new THREE.Matrix4().makeScale(20, 20, 20));   
-				  matrixAlien.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2)); 
-				  obj.applyMatrix(matrixAlien);
-					//obj.scale.x = obj.scale.y = obj.scale.z = 20;
+					obj.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) child.material = material;
+					} );
+				 obj.scale.set(20, 20, 20); 
+				 obj.position.set(300, -305, 100);
 					scene.add(obj);
 				}, onProgress, onError );
 		
