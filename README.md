@@ -1,25 +1,18 @@
-## Computação Gráfica
+# Projeto de Computação Gráfica
 
-Este trabalho prático foi desenvolvido para a disciplina de Computação Gráfica, ministrada pelo professor Dr. Mário Liziér.
+Este trabalho prático foi desenvolvido para a disciplina de Computação Gráfica na UFSCar (campus Sorocaba), ministrada pelo professor Dr. Mário Liziér. Utilizamos a biblioteca [ThreeJS](https://threejs.org/).
 
-#### Integrantes: 
+### Integrantes: 
 
 [Leandro Naidhig](https://github.com/Leandro-Naidhig/)
 
 [Michele Argolo Carvalho](https://github.com/xmixele/)
 
-#### Atividade Prática 1:
-- Visualização de um modelo mais complexo;
-- Utilização simples de shaders, apenas redimensionamento para o volume de visão.
+### Sobre:
+O objetivo deste projeto é aplicar os conceitos vistos em sala de aula na disciplina de Computaço Gráfica para a prática. O projeto consiste-se na divisão de 4 fases, e todas são incrementais. Ou seja, utilizamos o mesmo código para aplicarmos maiores funcionalidades para toda a cena projetada. O grupo optou por utilizar a temática de animais grandes com características arcaicas. Para maiores descrições das etapas e do funcionamento, descrevemos na [Wiki](https://github.com/xmixele/CG_Trabalho/wiki).
 
-#### Atividade Prática 2:
-- Visualização de pelo menos dois objetos diferentes;
-- Alguma iteração do usuário (teclado ou mouse), movendo pelo menos um dos objetos;
-- Construção das matrizes na CPU para envio a GPU:
-- Matriz de Transformação do modelo (uma diferente para cada modelo);
-- Matriz de Visualização (uma para toda a a cena);
-- Duas posições distintas de câmeras.
+### Executar:
+> sudo npm install http-server -g
 
-#### Atividade Prática 3:
-- Implementação de uma curva na cena: movimento ou objeto;
-- Shader próprio incluindo o modelo de iluminação e tonalização phong.
+> http-server . -p 8000
+
