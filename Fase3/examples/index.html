@@ -43,7 +43,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 	<body>
 		<div id="info">
 		<a href="http://threejs.org" target="_blank" rel="noopener"><h4>three.js</a> - Animals Carrousel</h4>
-		<b>[1]</b> Camera 1 <b>[2]</b> Camera 2 (Rotating) <b>[3]</b> Camera 3 <br><c>[W]</c> Up <c>[A]</c> Left <c>[D]</c> Right <c>[S]</c> Down <c>[SPACE]</c> Foward <c>[BACKSPACE]</c> Back
+		<b>[1]</b> Camera 1 <b>[2]</b> Camera 2 (Rotating) <b>[3]</b> Camera 3 (Bézier curve) <br><c>[W]</c> Up <c>[A]</c> Left <c>[D]</c> Right <c>[S]</c> Down <c>[SPACE]</c> Foward <c>[BACKSPACE]</c> Back
 		</div>
 		<script id="vtx-shader" type="x-shader/x-vertex">
 	        varying vec3 vScene;
@@ -96,6 +96,9 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 			var object;
+	var pos = 0;
+var falcon = new THREE.Mesh;
+            var curvePath;
 			var flag = 0;
 			init();
 			animate();
@@ -186,6 +189,14 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
 				controls = new THREE.OrbitControls(camera);
 				//
+				curve = new THREE.CubicBezierCurve3(
+				    new THREE.Vector3( -50, 0, 1200 ),
+				    new THREE.Vector3( -100, 300, -1000 ),
+				    new THREE.Vector3( -600, 500, -1400 ),
+				    new THREE.Vector3( -200, 0, 1200 )
+				);
+				curvePath = new THREE.CurvePath();
+				curvePath.add(curve);
 				window.addEventListener( 'keydown', key, false );
                 
 			}
@@ -220,7 +231,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 						})
 						    .start();
 				} else if (e.which == 51) { // press 3
-					flag = 0;
+					flag = 2;
 					camera.position.set(-1000, 500, 1000);
 				}
 				var speed = 1;
@@ -249,7 +260,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				render();
 			}
 			function render() {
-			if(flag){
+			if(flag == 1){
 				var x = camera.position.x,
    				y = camera.position.y,
     				z = camera.position.z;
@@ -257,8 +268,30 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
     				camera.position.z = z * Math.cos(0.020) + x * Math.sin(0.020);
 			}
 				camera.lookAt( scene.position );
+				if(flag == 2)
+					bezierCamera();
 				renderer.render( scene, camera );
 			}
+			function updateCurve(pos) {
+			    var allPoints = curvePath.getPoints(100);
+			    curveGeometry = new THREE.Geometry();
+			    for(var i = 0; i < allPoints.length ; i++ )
+				curveGeometry.vertices[i] = allPoints[i];  
+
+			    curve = new THREE.Line( curveGeometry, new THREE.LineBasicMaterial({ color : 0xffffff }));
+			    scene.add(curve);
+			}
+			function bezierCamera() {
+			    pos += 0.001;
+			    if(pos > 1)
+				pos = 0;
+			    var p = curvePath.getPointAt(pos);
+			    camera.position.x = p.x
+			    camera.position.y = p.y
+			    camera.position.z = p.z;
+			 
+			    updateCurve(pos);
+			}  
 		</script>
 
 	</body>
