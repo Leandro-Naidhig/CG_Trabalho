@@ -87,6 +87,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 		<script src="js/loaders/OBJLoader.js"></script>
        		<script src="js/loaders/OrbitControls.js"></script>
 		<script src="js/loaders/tween.min.js"></script>
+		<script src="js/loaders/MTLLoader.js"></script>
 
 
 		<script>
@@ -106,7 +107,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				document.body.appendChild( container );
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 				//camera.position.set( -50, 0, 1200 );
-				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 0, 1200));
+				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 300, 1200));
 
 				//scene
 				scene = new THREE.Scene();
@@ -144,8 +145,8 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 					object.traverse( function ( child ) {
 						if ( child instanceof THREE.Mesh ) child.material = phongMaterialDino;
 					} );
-					var matrixDino = new THREE.Matrix4().makeTranslation(-200, -305, 0);
-					  matrixDino.multiply(new THREE.Matrix4().makeScale(1, 1, 1));
+					var matrixDino = new THREE.Matrix4().makeTranslation(-400, -220, -100);
+					  matrixDino.multiply(new THREE.Matrix4().makeScale(0.8, 0.8, 0.8));
 					  matrixDino.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
 					  object.applyMatrix(matrixDino);
 					  
@@ -176,11 +177,113 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 					obj.traverse( function ( child ) {
 						if ( child instanceof THREE.Mesh ) child.material = material;
 					} );
-				 obj.scale.set(20, 20, 20); 
-				 obj.position.set(300, -305, 100);
+				 obj.scale.set(13, 13, 13); 
+				 obj.position.set(50, -220, 200);
+				obj.rotateY(Math.PI/2);
 					scene.add(obj);
 				}, onProgress, onError );
 		
+				var textureLoader = new THREE.TextureLoader( manager );
+				var texture = textureLoader.load('textures/elefantefull.png');
+				    var mtlElephant = new  THREE.MTLLoader();
+				    mtlElephant.setPath('models/obj/');
+				    mtlElephant.load('elephant/elefante.mtl', function(materials) {
+		
+					materials.preload();
+		
+					var objElephant = new THREE.OBJLoader();
+					objElephant.setMaterials(materials);
+					objElephant.setPath('models/obj/');
+					objElephant.load(
+					    'elephant/elefante.obj', 
+	
+					    function(object) {
+						object.traverse(function (child) {
+						    if (child instanceof THREE.Mesh) {
+							child.material.map = texture;
+						    }
+						});
+						
+				object.scale.set(70, 70, 70); 
+				 object.position.set(0, 0, -500);
+				object.rotateY(-(Math.PI/2));
+						scene.add(object);
+					    }
+					);
+
+				    });
+
+				var mtlTRICERTP = new  THREE.MTLLoader();
+				    mtlTRICERTP.setPath('models/obj/');
+				    mtlTRICERTP.load('TRICERTP/TRICERTP.MTL', function(materials) {
+		
+					materials.preload();
+		
+					var objTRICERTP = new THREE.OBJLoader();
+					objTRICERTP.setMaterials(materials);
+					objTRICERTP.setPath('models/obj/');
+					objTRICERTP.load(
+					    
+					    // URL
+					    'TRICERTP/TRICERTP.OBJ', 
+					    
+					    // Chamado quando o objeto foi carregado
+					    function(object) {
+
+						// As texturas vêm do MTL!
+
+						// Sombra
+						object.traverse(function (child) {
+						    if (child instanceof THREE.Mesh) {
+							child.material.map = texture;
+						    }
+						});
+						object.scale.set(80, 80, 80);
+						object.position.set(350, -200, -200);
+						object.rotateY(135);
+
+						scene.add(object);
+					    }
+					);
+
+				    });
+
+
+				var textureLoader2 = new THREE.TextureLoader( manager );
+				var textureCenter = textureLoader2.load('textures/10438_Circular_Grass_Patch_v1_Diffuse.jpg');
+				var mtlCenter = new  THREE.MTLLoader();
+				    mtlCenter.setPath('models/obj/');
+				    mtlCenter.load('chao/10438_Circular_Grass_Patch_v1_iterations-2.mtl', function(materials) {
+		
+					materials.preload();
+		
+					var objCenter = new THREE.OBJLoader();
+					objCenter.setMaterials(materials);
+					objCenter.setPath('models/obj/');
+					objCenter.load(
+					    
+					    // URL
+					    'chao/10438_Circular_Grass_Patch_v1_iterations-2.obj', 
+					    
+					    // Chamado quando o objeto foi carregado
+					    function(object) {
+
+						// As texturas vêm do MTL!
+
+						// Sombra
+						object.traverse(function (child) {
+						    if (child instanceof THREE.Mesh) {
+							child.material.map = textureCenter;
+						    }
+						});
+						object.rotation.x = -1.57;
+						object.scale.set(4, 4, 4);
+						object.position.set(0, -250, -200);
+						scene.add(object);
+					    }
+					);
+
+				    });
 				renderer = new THREE.WebGLRenderer();
 				renderer.setPixelRatio( window.devicePixelRatio );
 				renderer.setSize( window.innerWidth, window.innerHeight );
