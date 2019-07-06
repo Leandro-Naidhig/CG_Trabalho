@@ -1,0 +1,297 @@
+<!--
+INTEGRANTES:
+Leandro Naidhig, RA: 726555
+Michele Argolo Carvalho, RA: 726573
+Computação Gráfica - Fase 2
+Professor: Mario Liziér
+Código utilizado é da documentação do ThreeJS, encontrado no github: https://github.com/mrdoob/three.js
+-->
+<!DOCTYPE html>
+<html lang="en">
+	<head>
+		<title>three.js webgl - loaders - OBJ loader</title>
+		<meta charset="utf-8">
+		<meta name="viewport" content="width=device-width, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+		<style>
+			body {
+				font-family: Monospace;
+				background-color: #000;
+				color: #fff;
+				margin: 0px;
+				overflow: hidden;
+			}
+			b {
+				color: lightgreen;
+			}
+			c {
+				color: lightgreen;
+				text-align: right;
+			}
+			#info {
+				color: #fff;
+				position: absolute;
+				top: 10px;
+				width: 100%;
+				text-align: center;
+				z-index: 100;
+				display:block;
+			}
+			#info a, .button { color: #f00; font-weight: bold; text-decoration: underline; cursor: pointer }
+		</style>
+	</head>
+
+	<body>
+		<div id="info">
+		<a href="http://threejs.org" target="_blank" rel="noopener"><h4>three.js</a> - Animals Carrousel</h4>
+		<b>[1]</b> Camera 1 <b>[2]</b> Camera 2 (Rotating) <b>[3]</b> Camera 3 (Bézier curve) <br><c>[W]</c> Up <c>[A]</c> Left <c>[D]</c> Right <c>[S]</c> Down <c>[SPACE]</c> Foward <c>[BACKSPACE]</c> Back
+		</div>
+		<script id="vtx-shader" type="x-shader/x-vertex">
+	        varying vec3 vScene;
+		varying vec3 viewPosition;
+
+		void main(){
+			viewPosition = vec3(modelViewMatrix * vec4( position, 1.0 ));
+    			vScene = normalize(normalMatrix * normal);
+    			gl_Position = projectionMatrix * modelViewMatrix * vec4( position, 1.0 );
+		}
+
+		</script>
+
+		<script id="fment-shader" type="x-shader/x-fragment">
+		varying vec3 viewPosition;
+		varying vec3 vScene; //normal
+
+		uniform float shininess; 
+
+		uniform vec3 ambient;
+		uniform vec3 diffuse;
+		uniform vec3 specular;
+
+		uniform float Kambient;   
+        	uniform float Kdiffuse;
+        	uniform float Kspecular; 
+
+		uniform vec3 lightPosition;
+		void main(){
+			vec3 N = normalize(vScene);
+          		vec3 L = normalize(lightPosition-viewPosition);
+            		vec3 V = normalize(-viewPosition);
+			vec3 R = reflect(-L, N);
+
+			gl_FragColor = vec4(Kambient * ambient +
+                              Kdiffuse * max(dot(N, L), 0.0) * diffuse + Kspecular * pow((max(dot(R, V), 0.0)), shininess) * specular, 1.0);
+		}
+		</script>
+
+		<script src="../build/three.js"></script>
+		<script src="js/loaders/OBJLoader.js"></script>
+       		<script src="js/loaders/OrbitControls.js"></script>
+		<script src="js/loaders/tween.min.js"></script>
+
+
+		<script>
+			var container;
+			var camera, scene, renderer, controls;
+			var mouseX = 0, mouseY = 0;
+			var windowHalfX = window.innerWidth / 2;
+			var windowHalfY = window.innerHeight / 2;
+			var object;
+            		var curvePath;
+			var pos = 0;
+			var flag = 0;
+			init();
+			animate();
+			function init() {
+				container = document.createElement( 'div' );
+				document.body.appendChild( container );
+				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
+				//camera.position.set( -50, 0, 1200 );
+				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 0, 1200));
+
+				//scene
+				scene = new THREE.Scene();
+				var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
+				scene.add( ambientLight );
+				var pointLight = new THREE.PointLight( 0xffffff, 0.8 );
+				camera.add( pointLight );
+				scene.add( camera );
+
+				// our shader
+				var material = new THREE.ShaderMaterial({
+				uniforms: {
+						shininess: new THREE.Uniform(1),
+						ambient: new THREE.Uniform(new THREE.Color(0x600300)),
+						diffuse: new THREE.Uniform(new THREE.Color(0xf9eefe)),
+						specular: new THREE.Uniform(new THREE.Color(0x080100)),
+						Kambient: new THREE.Uniform(1.0),
+						Kdiffuse: new THREE.Uniform(0.8),
+						Kspecular: new THREE.Uniform(1.0),
+						lightPosition: new THREE.Uniform(ambientLight.position),
+					    },
+					vertexShader: document.getElementById("vtx-shader").textContent,
+					fragmentShader: document.getElementById("fment-shader").textContent
+				});
+		
+				var matrixScene = new THREE.Matrix4().makeTranslation(-50, 0, 1200);
+				scene.applyMatrix(matrixScene);
+				// manager
+
+				// phongs
+				var phongMaterialDino = new THREE.MeshPhongMaterial({color: 0x4b0082, specular: 0xffd700, shininess: 60});
+				//var phongMaterialAlien = new THREE.MeshPhongMaterial({color: 0x009933, specular: 0xffffff, shininess: 20});
+	
+				function loadModel() {
+					object.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) child.material = phongMaterialDino;
+					} );
+					var matrixDino = new THREE.Matrix4().makeTranslation(-200, -305, 0);
+					  matrixDino.multiply(new THREE.Matrix4().makeScale(1, 1, 1));
+					  matrixDino.multiply(new THREE.Matrix4().makeRotationY(Math.PI*2));
+					  object.applyMatrix(matrixDino);
+					  
+					  //object.position.z = - 700;
+					scene.add( object );
+				}
+				var manager = new THREE.LoadingManager( loadModel );
+				manager.onProgress = function ( item, loaded, total ) {
+					console.log( item, loaded, total );
+				};
+				// texture
+				var textureLoader = new THREE.TextureLoader( manager );
+				var texture = textureLoader.load('textures/UV_Grid_Sm.jpg');
+				// model
+				function onProgress( xhr ) {
+					if ( xhr.lengthComputable ) {
+						var percentComplete = xhr.loaded / xhr.total * 100;
+						console.log( 'model ' + Math.round( percentComplete, 2 ) + '% downloaded' );
+					}
+				}
+				function onError() {}
+				var loader = new THREE.OBJLoader( manager );
+				loader.load( 'models/obj/male02/Irex_obj.obj', function ( obj ) {
+					object = obj;
+				}, onProgress, onError );
+				// second object
+				loader.load( 'models/obj/alien/alien.obj', function ( obj ) {
+					obj.traverse( function ( child ) {
+						if ( child instanceof THREE.Mesh ) child.material = material;
+					} );
+				 obj.scale.set(20, 20, 20); 
+				 obj.position.set(300, -305, 100);
+					scene.add(obj);
+				}, onProgress, onError );
+		
+				renderer = new THREE.WebGLRenderer();
+				renderer.setPixelRatio( window.devicePixelRatio );
+				renderer.setSize( window.innerWidth, window.innerHeight );
+				container.appendChild( renderer.domElement );
+				document.addEventListener( 'mousemove', onDocumentMouseMove, false );
+				controls = new THREE.OrbitControls(camera);
+				//
+				curve = new THREE.CubicBezierCurve3(
+				    new THREE.Vector3( -50, 0, 1200 ),
+				    new THREE.Vector3( -100, 300, -1000 ),
+				    new THREE.Vector3( -600, 500, -1400 ),
+				    new THREE.Vector3( -200, 0, 1200 )
+				);
+				curvePath = new THREE.CurvePath();
+				curvePath.add(curve);
+				window.addEventListener( 'keydown', key, false );
+                
+			}
+			function key(e) {
+				if(e.which == 49){  // which = change position camera  (press 1)
+					flag = 0;
+					camera.position.set( -50, 0, 1200 );
+				} else if (e.which == 50) { // press 2
+					//camera.position.set(1000, 500, 1000);
+					        var from = {
+						    x: camera.position.x,
+						    y: camera.position.y,
+						    z: camera.position.z
+						};
+
+						var to = {
+						    x: -600,
+						    y: -500,
+						    z: -1400	
+						};
+						var tween = new TWEEN.Tween(from)
+						    .to(to, 3000)
+						    .easing(TWEEN.Easing.Linear.None)
+						    .onUpdate(function () {
+						    camera.position.set(this.x, this.y, this.z);
+						    camera.lookAt(new THREE.Vector3(0, 0, 0));
+						})
+						    .onComplete(function () {
+					            flag = 1;
+						    render();
+						    camera.lookAt(new THREE.Vector3(0, 0, 0));
+						})
+						    .start();
+				} else if (e.which == 51) { // press 3
+					flag = 2;
+					camera.position.set(-1000, 500, 1000);
+				}
+				var speed = 1;
+				if(e.which == 68){object.position.x += speed;}  //RIGHT D
+				else if(e.which == 65){object.position.x -= speed;}  //LEFT  A
+				else if(e.which == 87){object.position.y += speed;}  //UP   W
+				else if(e.which == 83){object.position.y -= speed;}  //DOWN S
+				else if(e.which == 32){object.position.z += speed;}  //FRONT SPACE
+				else if(e.which == 8){object.position.z -= speed;}  //BACK BACKSPACE
+			}
+			function onWindowResize() {
+				windowHalfX = window.innerWidth / 2;
+				windowHalfY = window.innerHeight / 2;
+				camera.aspect = window.innerWidth / window.innerHeight;
+				camera.updateProjectionMatrix();
+				renderer.setSize( window.innerWidth, window.innerHeight );
+			}
+			function onDocumentMouseMove( event ) {
+				mouseX = ( event.clientX - windowHalfX ) / 2;
+				mouseY = ( event.clientY - windowHalfY ) / 2;
+			}
+			
+			function animate() {
+				TWEEN.update();
+				requestAnimationFrame( animate );
+				render();
+			}
+			function render() {
+			if(flag == 1){
+				var x = camera.position.x,
+   				y = camera.position.y,
+    				z = camera.position.z;
+				camera.position.x = x * Math.cos(0.020) - z * Math.sin(0.020);
+    				camera.position.z = z * Math.cos(0.020) + x * Math.sin(0.020);
+			}
+				camera.lookAt( scene.position );
+				if(flag == 2)
+					bezierCamera();
+				renderer.render( scene, camera );
+			}
+			function updateCurve(pos) {
+			    var allPoints = curvePath.getPoints(100);
+			    curveGeometry = new THREE.Geometry();
+			    for(var i = 0; i < allPoints.length ; i++ )
+				curveGeometry.vertices[i] = allPoints[i];  
+
+			    curve = new THREE.Line( curveGeometry, new THREE.LineBasicMaterial({ color : 0xffffff }));
+			    scene.add(curve);
+			}
+			function bezierCamera() {
+			    pos += 0.001;
+			    if(pos > 1)
+				pos = 0;
+			    var p = curvePath.getPointAt(pos);
+			    camera.position.x = p.x
+			    camera.position.y = p.y
+			    camera.position.z = p.z;
+			 
+			    updateCurve(pos);
+			}  
+		</script>
+
+	</body>
+</html>
