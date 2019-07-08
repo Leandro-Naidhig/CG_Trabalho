@@ -92,12 +92,14 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 
 		<script>
 			var container;
+			var OBJChao, OBJElefante;
 			var camera, scene, renderer, controls;
 			var mouseX = 0, mouseY = 0;
 			var windowHalfX = window.innerWidth / 2;
 			var windowHalfY = window.innerHeight / 2;
 			var object;
-            		var curvePath;
+			var pivotPoint;
+            var curvePath;
 			var pos = 0;
 			var flag = 0;
 			init();
@@ -108,7 +110,7 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				camera = new THREE.PerspectiveCamera( 45, window.innerWidth / window.innerHeight, 1, 2000 );
 				//camera.position.set( -50, 0, 1200 );
 				camera.applyMatrix(new THREE.Matrix4().makeTranslation(-50, 300, 1200));
-
+				
 				//scene
 				scene = new THREE.Scene();
 				var ambientLight = new THREE.AmbientLight( 0xcccccc, 0.4 );
@@ -132,7 +134,8 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 					vertexShader: document.getElementById("vtx-shader").textContent,
 					fragmentShader: document.getElementById("fment-shader").textContent
 				});
-		
+				pivotPoint = new THREE.Object3D();
+
 				var matrixScene = new THREE.Matrix4().makeTranslation(-50, 0, 1200);
 				scene.applyMatrix(matrixScene);
 				// manager
@@ -204,14 +207,17 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 						    }
 						});
 						
-				object.scale.set(70, 70, 70); 
-				 object.position.set(0, 0, -500);
-				object.rotateY(-(Math.PI/2));
+					object.scale.set(70, 70, 70); 
+					object.position.set(0, 0, -500);
+					object.rotateY(-(Math.PI/2));
+					OBJElefante = object;
+					pivotPoint.add(object);
 						scene.add(object);
 					    }
 					);
 
 				    });
+
 
 				var mtlTRICERTP = new  THREE.MTLLoader();
 				    mtlTRICERTP.setPath('models/obj/');
@@ -224,15 +230,9 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 					objTRICERTP.setPath('models/obj/');
 					objTRICERTP.load(
 					    
-					    // URL
 					    'TRICERTP/TRICERTP.OBJ', 
 					    
-					    // Chamado quando o objeto foi carregado
 					    function(object) {
-
-						// As texturas vêm do MTL!
-
-						// Sombra
 						object.traverse(function (child) {
 						    if (child instanceof THREE.Mesh) {
 							child.material.map = texture;
@@ -241,7 +241,6 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 						object.scale.set(80, 80, 80);
 						object.position.set(350, -200, -200);
 						object.rotateY(135);
-
 						scene.add(object);
 					    }
 					);
@@ -262,15 +261,10 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 					objCenter.setPath('models/obj/');
 					objCenter.load(
 					    
-					    // URL
 					    'chao/10438_Circular_Grass_Patch_v1_iterations-2.obj', 
 					    
-					    // Chamado quando o objeto foi carregado
 					    function(object) {
 
-						// As texturas vêm do MTL!
-
-						// Sombra
 						object.traverse(function (child) {
 						    if (child instanceof THREE.Mesh) {
 							child.material.map = textureCenter;
@@ -279,6 +273,8 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 						object.rotation.x = -1.57;
 						object.scale.set(4, 4, 4);
 						object.position.set(0, -250, -200);
+						OBJChao = object;
+						object.add(pivotPoint);
 						scene.add(object);
 					    }
 					);
@@ -369,6 +365,10 @@ Código utilizado é da documentação do ThreeJS, encontrado no github: https:/
 				camera.position.x = x * Math.cos(0.020) - z * Math.sin(0.020);
     				camera.position.z = z * Math.cos(0.020) + x * Math.sin(0.020);
 			}
+
+			OBJChao.rotation.z += 0.005;
+			pivotPoint.rotation.z += 0.05;
+
 				camera.lookAt( scene.position );
 				if(flag == 2)
 					bezierCamera();
